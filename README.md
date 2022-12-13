@@ -6,34 +6,35 @@ As a user: I want to be able to search for upcoming events at my location or by 
 As an admin: Be able to add, remove and edit events based on location and event dates/times. Be able to create/edit business/personal profile. Booking options and capacity limits. Stretch goal is top lists for accounts with high ratings.
 
 ## App Name Ideas
-City trotter
-Cititreat
-Citytrip
-Citilog
-Citibound
-Citiverse
-urbantrotter
-uplanner
-Eventnow
+City Trotter
+CitiTreat
+CitiBeat
+CityTrip
+CitiLog
+CitiBound
+CitiVerse
+Urban Trotter
+Uplanner
+EventNow
 event.logger
 Event.try
 Event.ly
 eventure
-Eventverse
-Enventgator
-Ventfinder
+EventVerse
+Envent Gator
+Vent Finder
 url.y
 Nexstop
 itinera
-Hitch stop
+Hitch Stop
 Uvisit
 Vizi
 Vizi Finder
 Vizilog
-Vizitrip
+ViziTrip
 Trip.it
-Triptree
-Trip journal
+TripTree
+Trip Journal
 Travelocity
 travelverse
 Travelity
