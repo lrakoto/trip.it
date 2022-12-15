@@ -11,10 +11,10 @@ class Event(models.Model):
     description = models.CharField(max_length=250)
     image = models.CharField(max_length=250)
     capacity = models.IntegerField()
-    created = models.DateTimeField('date published')
+    createdDate = models.DateTimeField(auto_now_add=True, blank=True)
 
     def __str__(self):
-            return self.name, self.date, self.location, self.description, self.image
+        return f'{self.name} {self.date} {self.location} {self.description} {self.image}'
 
     def was_published_recently(self):
-        return self.created >= timezone.now() - datetime.timedelta(days=1)
+        return self.created >= timezone.now() - datetime.timedelta(days=1)    
