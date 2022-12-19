@@ -1,14 +1,17 @@
-from django.shortcuts import render
+from django.shortcuts import render, HttpResponse
+from trip_it import settings
 from .models import Event
 
 events = Event.objects.all()
+gkey = settings.GMAPS_KEY
 
 # Views
 
-
 def index(request):
-    return render(request, 'index.html')
+    return render(request, 'index.html', {'googlekey': gkey})
 
+def test(request):
+    return HttpResponse(f'HEY:{gkey}')
 
 def about(request):
     return render(request, 'about.html')

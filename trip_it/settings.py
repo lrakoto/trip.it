@@ -25,6 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = config.get('SECRET_KEY')
+GMAPS_KEY = config.get('GMAPS_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -81,7 +82,7 @@ WSGI_APPLICATION = 'trip_it.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'trip_it',
+        'NAME': 'trip_it_data',
     }
 }
 
