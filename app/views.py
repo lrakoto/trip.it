@@ -40,13 +40,27 @@ location = gmaps.geolocate()
 
 # Views
 def index(request):
+    eventAddressList = []
+    for event in events:
+        aMarker = gmaps.geocode(event.address)
+        eventAddressList.append({
+            'gmapdata': aMarker,
+            'name': event.name,
+            'image': event.image,
+            'description': event.description
+        })
+
     # assign google maps data to variable
     mapdata = {
         'mapdata': location
     }
+    eventAddressListData = {
+        'addressList': eventAddressList
+    }
     # convert data into JSON for use in browser
     mapJSON = dumps(mapdata)
-    return render(request, 'index.html', {'location': location, 'googlekey': gkey, 'maps': mapJSON})
+    eventsAddressListJSON = dumps(eventAddressListData)
+    return render(request, 'index.html', {'location': location, 'googlekey': gkey, 'maps': mapJSON, 'addresses': eventsAddressListJSON})
 
 def about(request):
     return render(request, 'about.html')
