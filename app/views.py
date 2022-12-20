@@ -1,7 +1,9 @@
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from django.shortcuts import render, HttpResponse
+from django.shortcuts import render, HttpResponse, HttpResponseRedirect
+from django.contrib.auth.models import User
 from trip_it import settings
 from .models import Event
+import re
 import googlemaps
 from json import *
 
@@ -29,7 +31,6 @@ class EventDelete(DeleteView):
 
 
 ## GOOGLE MAPS API ##
-
 gkey = settings.GMAPS_KEY
 
 # Google maps API Key
@@ -37,6 +38,7 @@ gmaps = googlemaps.Client(key=gkey)
 
 # retrieve coordinates for current location
 location = gmaps.geolocate()
+
 
 # Views
 def index(request):
@@ -61,7 +63,12 @@ def index(request):
     # convert data into JSON for use in browser
     mapJSON = dumps(mapdata)
     eventsAddressListJSON = dumps(eventAddressListData)
-    return render(request, 'index.html', {'location': location, 'googlekey': gkey, 'maps': mapJSON, 'addresses': eventsAddressListJSON})
+    return render(request, 'index.html', {'location': location, 'googlekey': gkey, 'maps': mapJSON, 'addresses': eventsAddressListJSON })
+
+def profile(request, user_id):
+    user = User.objects.get(id=user_id)
+    events = Event.objects.filter(userId=user)
+    return render(request, 'profile.html', {'user_id': user_id, 'user': user, 'events': events})
 
 def about(request):
     return render(request, 'about.html')
@@ -71,4 +78,49 @@ def eventspage(request):
 
 def eventdetails(request, event_id):
     event = Event.objects.get(id=event_id)
-    return render(request, 'events/details.html', { 'event': event })
+    urlString = event.address
+    reps = {' ': '+', ',': '%2C'}
+
+    ## String replacer from https://gist.github.com/bgusach/a967e0587d6e01e889fd1d776c5f3729 ##
+    def multireplace(string, replacements, ignore_case=False):
+        if not replacements:
+            # Edge case that'd produce a funny regex and cause a KeyError
+            return string
+        
+        # If case insensitive, we need to normalize the old string so that later a replacement
+        # can be found. For instance with {"HEY": "lol"} we should match and find a replacement for "hey",
+        # "HEY", "hEy", etc.
+        if ignore_case:
+            def normalize_old(s):
+                return s.lower()
+
+            re_mode = re.IGNORECASE
+
+        else:
+            def normalize_old(s):
+                return s
+
+            re_mode = 0
+
+        replacements = {normalize_old(key): val for key, val in replacements.items()}
+        
+        # Place longer ones first to keep shorter substrings from matching where the longer ones should take place
+        # For instance given the replacements {'ab': 'AB', 'abc': 'ABC'} against the string 'hey abc', it should produce
+        # 'hey ABC' and not 'hey ABc'
+        rep_sorted = sorted(replacements, key=len, reverse=True)
+        rep_escaped = map(re.escape, rep_sorted)
+        
+        # Create a big OR regex that matches any of the substrings to replace
+        pattern = re.compile("|".join(rep_escaped), re_mode)
+        
+        # For each match, look up the new string in the replacements, being the key the normalized old string
+        return pattern.sub(lambda match: replacements[normalize_old(match.group(0))], string)
+
+    formattedString = multireplace(urlString, reps)
+
+    addressCoords = gmaps.geocode(event.address)
+    mapdata = {
+        'mapdata': addressCoords
+    }
+    mapJSON = dumps(mapdata)
+    return render(request, 'events/details.html', { 'event': event, 'gmapdata': mapJSON, 'googlekey': gkey, 'url': formattedString })
