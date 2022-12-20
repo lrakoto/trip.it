@@ -1,3 +1,4 @@
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.shortcuts import render, HttpResponse
 from trip_it import settings
 from .models import Event
@@ -5,6 +6,30 @@ import googlemaps
 from json import *
 
 events = Event.objects.all()
+
+## EVENTS CRUD ##
+class EventCreate(CreateView):
+  model = Event
+  fields = '__all__'
+  success_url = '/events'
+
+class EventUpdate(UpdateView):
+  model = Event
+  fields = ['name', 'date', 'enddate', 'venueName', 'address', 'description', 'image', 'capacity']
+
+  def form_valid(self, form):
+    self.object = form.save(commit=False)
+    self.object.save()
+    return HttpResponseRedirect('/events/' + str(self.object.pk))
+
+class EventDelete(DeleteView):
+  model = Event
+  success_url = '/events'
+
+
+
+## GOOGLE MAPS API ##
+
 gkey = settings.GMAPS_KEY
 
 # Google maps API Key
