@@ -44,6 +44,7 @@ def index(request):
     for event in events:
         aMarker = gmaps.geocode(event.address)
         eventAddressList.append({
+            'id': event.pk,
             'gmapdata': aMarker,
             'name': event.name,
             'image': event.image,
