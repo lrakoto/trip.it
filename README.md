@@ -55,7 +55,7 @@ xmark
 mark.r
 
 ## Wireframe
-![AutoDex Wireframe](public/assets/trip_wireframe.png)
+![AutoDex Wireframe](public/assets/trip_wire.png)
 
 ## ERD
 ![AutoDex Wireframe](public/assets/trip_it_ERD.png)
