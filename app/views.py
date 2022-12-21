@@ -1,8 +1,12 @@
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from django.shortcuts import render, HttpResponse, HttpResponseRedirect
+from django.shortcuts import render, redirect, HttpResponse, HttpResponseRedirect
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.contrib.auth import login, logout, authenticate
+from django.db import transaction
 from trip_it import settings
 from .models import Event
+from .forms import RegisterForm
 import re
 import googlemaps
 from json import *
@@ -36,12 +40,11 @@ gkey = settings.GMAPS_KEY
 # Google maps API Key
 gmaps = googlemaps.Client(key=gkey)
 
-# retrieve coordinates for current location
-location = gmaps.geolocate()
-
 
 # Views
 def index(request):
+    # retrieve coordinates for current location
+    location = gmaps.geolocate()
     eventAddressList = []
     for event in events:
         aMarker = gmaps.geocode(event.address)
@@ -63,15 +66,29 @@ def index(request):
     # convert data into JSON for use in browser
     mapJSON = dumps(mapdata)
     eventsAddressListJSON = dumps(eventAddressListData)
-    return render(request, 'index.html', {'location': location, 'googlekey': gkey, 'maps': mapJSON, 'addresses': eventsAddressListJSON })
+    currentUser = request.user
+    return render(request, 'index.html', {'location': location, 'googlekey': gkey, 'maps': mapJSON, 'addresses': eventsAddressListJSON, 'c_user': currentUser })
 
+@login_required(login_url='/login')
 def profile(request, user_id):
     user = User.objects.get(id=user_id)
     events = Event.objects.filter(userId=user)
     return render(request, 'profile.html', {'user_id': user_id, 'user': user, 'events': events})
 
+@login_required(login_url='/login')
 def about(request):
     return render(request, 'about.html')
+
+def signup(request):
+    if request.method == 'POST':
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('/')
+    else:
+        form = RegisterForm()
+    return render(request, 'registration/signup.html', { 'form': form })
 
 def eventspage(request):
     return render(request, 'events/index.html', {'events': events})
@@ -124,3 +141,6 @@ def eventdetails(request, event_id):
     }
     mapJSON = dumps(mapdata)
     return render(request, 'events/details.html', { 'event': event, 'gmapdata': mapJSON, 'googlekey': gkey, 'url': formattedString })
+
+def flush_transaction():
+    transaction.commit()
