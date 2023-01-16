@@ -15,8 +15,6 @@ import dj_database_url
 from pathlib import Path
 from os import environ
 from dotenv import load_dotenv, dotenv_values
-django_heroku.settings(locals())
-
 
 config = dotenv_values('.env')
 
@@ -140,3 +138,6 @@ LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/login'
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+django_heroku.settings(locals())
+
